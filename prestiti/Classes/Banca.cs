@@ -76,16 +76,16 @@ namespace prestiti.Classes
                 List<Prestito> totalPrestiti = Prestiti.Where(p => p.Cliente != null && p.Cliente.CodiceFiscale == codice).ToList();
                 return totalPrestiti;
             }
-            return null;
+            return new List<Prestito>(); 
         }
-
 
         public void PrintAllPrestitiOfCliente(string codice)
         {
             List<Prestito> prestitiCliente = GetTotalPrestiti(codice);
 
-            if (prestitiCliente != null)
+            if (prestitiCliente.Count > 0) 
             {
+                Console.WriteLine($"Prestiti per il cliente con codice fiscale {codice}:");
                 foreach (var prestito in prestitiCliente)
                 {
                     Console.WriteLine(prestito.ToString());
@@ -96,6 +96,7 @@ namespace prestiti.Classes
                 Console.WriteLine("Nessun prestito trovato per questo cliente.");
             }
         }
+
 
 
         public void AddPrestitoToCliente(string codiceFiscale, Prestito prestito)

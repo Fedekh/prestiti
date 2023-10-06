@@ -37,7 +37,7 @@ namespace prestiti
             }
 
             int numero = 0;
-            while (numero != 7)
+            while (numero != 8)
             {
                 Console.WriteLine("\n\rChe vuoi fare?\n\r1) Visualizza tutti i clienti\n\r2) Aggiungi cliente\n\r3) Modifica cliente\n\r4) Vedere info cliente\n\r5) Cancellare cliente\n\r6) Vedere prestito in base al codice fiscale\n\r7)Aggiungi un prestito \n\r8) Esci\n\r");
 
@@ -121,8 +121,22 @@ namespace prestiti
                         case 6:
                             Console.WriteLine("Cerca tutti i prestiti di un cliente per codice fiscale:");
                             string codice4 = Console.ReadLine();
-                            bank.PrintAllPrestitiOfCliente(codice4);
+                            Cliente clienteForPrint = bank.SearchCliente(codice4);
+
+                            if (clienteForPrint != null)
+                            {
+                                Console.WriteLine($"Prestiti per il cliente con codice fiscale {codice4}:");
+                                foreach (var prestito in clienteForPrint.Prestiti)
+                                {
+                                    Console.WriteLine(prestito.ToString());
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Cliente non trovato.");
+                            }
                             break;
+
                         case 7:
                             Console.WriteLine("Aggiungi un prestito a un cliente:");
                             Console.Write("Inserisci il codice fiscale del cliente: ");
@@ -133,30 +147,42 @@ namespace prestiti
                             if (cliente != null)
                             {
                                 Console.Write("Inserisci l'importo totale del prestito: ");
-                                double totalePrestito = double.Parse(Console.ReadLine());
-
-                                Console.Write("Inserisci l'importo della rata: ");
-                                double rataPrestito = double.Parse(Console.ReadLine());
-
-
-                                Prestito nuovoPrestito = new Prestito
+                                double totalePrestito;
+                                if (double.TryParse(Console.ReadLine(), out totalePrestito))
                                 {
-                                    Totale = totalePrestito,
-                                    Rata = rataPrestito,
-                                    Inizio = DateTime.Now,
-                                    Fine = DateTime.Now.AddMonths(1)
-                                };
+                                    Console.Write("Inserisci l'importo della rata: ");
+                                    double rataPrestito;
+                                    if (double.TryParse(Console.ReadLine(), out rataPrestito))
+                                    {
 
-                                loanList.Add(nuovoPrestito);
+                                        Prestito nuovoPrestito = new Prestito
+                                        {
+                                            Totale = totalePrestito,
+                                            Rata = rataPrestito,
+                                            Inizio = DateTime.Now,
+                                            Fine = DateTime.Now.AddMonths(1)
+                                        };
 
-                                bank.AddPrestitoToCliente(codiceFiscaleCliente, nuovoPrestito);
-                                Console.WriteLine("Prestito aggiunto con successo:");
+                                        cliente.Prestiti.Add(nuovoPrestito);
+                                        nuovoPrestito.Cliente = cliente;
 
-                                Console.WriteLine($"Cliente: {cliente.Name}, Codice Fiscale: {cliente.CodiceFiscale}");
-                                Console.WriteLine($"Totale Prestito: {nuovoPrestito.Totale}");
-                                Console.WriteLine($"Rata Prestito: {nuovoPrestito.Rata}");
-                                Console.WriteLine($"Data Inizio: {nuovoPrestito.Inizio:dd/MM/yyyy}");
-                                Console.WriteLine($"Data Fine: {nuovoPrestito.Fine:dd/MM/yyyy}");
+                                        Console.WriteLine("Prestito aggiunto con successo:");
+                                        
+                                        foreach (var prestito in cliente.Prestiti)
+                                        {
+                                            Console.WriteLine($"Cliente: {cliente.Name}, Codice Fiscale: {cliente.CodiceFiscale}\n\rPrestito: {prestito.Totale}, Data Inizio: {prestito.Inizio:dd/MM/yyyy}, Data Fine: {prestito.Fine:dd/MM/yyyy}");
+                                        }
+                                        Console.ReadLine(); 
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Inserisci un importo valido per la rata del prestito.");
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Inserisci un importo valido per il totale del prestito.");
+                                }
                             }
                             else
                             {
@@ -166,13 +192,11 @@ namespace prestiti
 
 
 
+
                         case 8:
                             Console.WriteLine("Programma terminato.");
                             break;
 
-                        default:
-                            Console.WriteLine("Opzione non valida. Inserisci un numero da 1 a 7.");
-                            break;
                     }
                 }
                 else
